@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZNA Client Portal — Services, Documents & Expense Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0F1B3D;
+    --navy-soft:#4B5478;
+    --ivory:#FAF9F5;
+    --ivory-line:#E4E1D8;
+    --card:#FFFFFF;
+    --accent:#B8541E;
+    --accent-deep:#8F4017;
+    --accent-tint:rgba(184,84,30,0.08);
+    --green:#2F6F4F;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--ivory);
+    color:var(--navy);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+  }
+  .app{ max-width:920px; margin:0 auto; padding:32px 20px 80px; }
+  .brand{ display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+  .brand img{ height:32px; width:32px; object-fit:contain; }
+  .brand span{ font-weight:800; font-size:15px; }
+  h1{ font-size:clamp(22px,3.4vw,30px); font-weight:800; margin:6px 0 24px; }
+
+  nav.tabs{
+    display:flex;
+    gap:6px;
+    border-bottom:1px solid var(--ivory-line);
+    margin-bottom:28px;
+    overflow-x:auto;
+  }
+  nav.tabs button{
+    font-family:inherit;
+    font-size:14px;
+    font-weight:700;
+    padding:12px 18px;
+    background:none;
+    border:none;
+    border-bottom:3px solid transparent;
+    color:var(--navy-soft);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  nav.tabs button.active{ color:var(--navy); border-bottom-color:var(--accent); }
+
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--ivory-line);
+    border-radius:14px;
+    padding:24px;
+    margin-bottom:16px;
+  }
+  .card h3{ font-size:17px; font-weight:800; margin:0 0 6px; }
+  .card p.desc{ color:var(--navy-soft); font-size:14px; margin:0 0 14px; }
+
+  .service-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  @media (max-width:600px){ .service-grid{ grid-template-columns:1fr; } }
+  .service-card{
+    background:var(--card); border:1px solid var(--ivory-line);
+    border-radius:12px; padding:18px;
+  }
+  .service-card h4{ font-size:15px; font-weight:800; margin:0 0 6px; }
+  .service-card p{ font-size:13px; color:var(--navy-soft); margin:0 0 14px; }
+  .tag{
+    display:inline-block; font-size:11px; font-weight:700;
+    color:var(--accent-deep); background:var(--accent-tint);
+    padding:3px 9px; border-radius:20px; margin-bottom:10px;
+  }
+  .btn{
+    display:inline-block; font-family:inherit; font-size:13.5px; font-weight:700;
+    padding:9px 16px; border-radius:100px; border:1px solid var(--navy);
+    background:var(--navy); color:var(--ivory); cursor:pointer; text-decoration:none;
+  }
+  .btn:hover{ background:var(--accent-deep); border-color:var(--accent-deep); }
+  .btn.full{ width:100%; text-align:center; padding:13px; font-size:14.5px; }
+  .btn.ghost{ background:transparent; color:var(--navy); }
+
+  .doc-item{
+    display:flex; align-items:center; gap:12px;
+    padding:13px 0; border-bottom:1px solid var(--ivory-line);
+  }
+  .doc-item:last-child{ border-bottom:none; }
+  .doc-item input[type="checkbox"]{ width:18px; height:18px; accent-color:var(--accent); }
+  .doc-item label{ flex:1; font-size:14.5px; }
+  .doc-item.done label{ text-decoration:line-through; color:var(--navy-soft); }
+  .doc-progress{ font-size:13px; color:var(--navy-soft); margin-bottom:16px; }
+
+  .exp-form{ display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:10px; margin-bottom:20px; }
+  @media (max-width:640px){ .exp-form{ grid-template-columns:1fr 1fr; } }
+  .exp-form input, .exp-form select{
+    font-family:inherit; font-size:14px; padding:10px 12px;
+    border-radius:8px; border:1px solid var(--ivory-line); background:var(--ivory);
+  }
+  table{ width:100%; border-collapse:collapse; font-size:14px; }
+  th{ text-align:left; font-size:12.5px; color:var(--navy-soft); font-weight:700; padding:8px 6px; border-bottom:1px solid var(--ivory-line); }
+  td{ padding:10px 6px; border-bottom:1px solid var(--ivory-line); }
+  td.amt{ text-align:right; font-weight:700; }
+  .del{ color:var(--navy-soft); cursor:pointer; font-size:13px; text-decoration:underline; background:none; border:none; font-family:inherit; }
+  .total-row{ display:flex; justify-content:space-between; align-items:baseline; margin-top:16px; padding-top:16px; border-top:2px solid var(--navy); }
+  .total-row .label{ font-weight:700; }
+  .total-row .num{ font-size:22px; font-weight:800; color:var(--accent-deep); }
+
+  .empty{ color:var(--navy-soft); font-size:14px; text-align:center; padding:30px 0; }
+  .error{ color:#b3261e; font-size:13px; margin-top:-4px; margin-bottom:10px; display:none; }
+  .error.show{ display:block; }
+
+  .note{
+    background:var(--accent-tint); border-radius:10px; padding:14px 16px;
+    font-size:13px; color:var(--accent-deep); margin-bottom:20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="brand">
+    <img src="zna-logo.png" alt="ZNA Digital Accountants">
+    <span>ZNA Digital Accountants</span>
+  </div>
+  <h1>Client portal</h1>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="services">Services</button>
+    <button class="tab-btn" data-tab="documents">Documents</button>
+    <button class="tab-btn" data-tab="expenses">Expense tracker</button>
+  </nav>
+
+  <div class="panel active" id="panel-services">
+    <div class="card">
+      <h3>Our services</h3>
+      <p class="desc">Select a service to send a request directly to our team — no account needed.</p>
+    </div>
+    <div class="service-grid" id="serviceGrid"></div>
+  </div>
+
+  <div class="panel" id="panel-documents">
+    <div class="card">
+      <h3>Document checklist</h3>
+      <p class="desc">Track what you still need to send us. Saved on this device.</p>
+      <div class="doc-progress" id="docProgress">0 of 0 complete</div>
+      <div id="docList"></div>
+      <div style="margin-top:16px; display:flex; gap:10px;">
+        <input type="text" id="newDocInput" placeholder="Add a document to track" style="flex:1; font-family:inherit; font-size:14px; padding:10px 12px; border-radius:8px; border:1px solid var(--ivory-line);">
+        <button class="btn" onclick="addDoc()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-expenses">
+    <div class="card">
+      <h3>Expense tracker</h3>
+      <p class="desc">Log expenses as you go — export the total when you're ready to send it over. Saved on this device only.</p>
+      <div class="note">This is a lightweight personal log, not a replacement for QuickBooks. Send us these entries and we'll get them into your books.</div>
+
+      <div class="exp-form">
+        <input type="text" id="expDesc" placeholder="Description">
+        <input type="number" id="expAmount" placeholder="Amount" step="0.01">
+        <select id="expCategory">
+          <option>Office</option>
+          <option>Travel</option>
+          <option>Software</option>
+          <option>Payroll</option>
+          <option>Supplies</option>
+          <option>Other</option>
+        </select>
+        <button class="btn" onclick="addExpense()">Add</button>
+      </div>
+      <div class="error" id="expError">Enter a description and a valid amount</div>
+
+      <table id="expTable">
+        <thead>
+          <tr><th>Description</th><th>Category</th><th>Amount</th><th></th></tr>
+        </thead>
+        <tbody id="expBody"></tbody>
+      </table>
+      <div id="expEmpty" class="empty" style="display:none;">No expenses logged yet.</div>
+
+      <div class="total-row">
+        <span class="label">Total logged</span>
+        <span class="num" id="expTotal">$0.00</span>
+      </div>
+      <div style="margin-top:16px;">
+        <button class="btn ghost full" onclick="emailExpenses()">Send this list to ZNA</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const services = [
+    { name: "Bookkeeping", tag: "US & UK", desc: "Ongoing transaction entry and monthly close, kept current." },
+    { name: "Bank reconciliation", tag: "US & UK", desc: "Statements matched line by line against your books." },
+    { name: "Payroll", tag: "US & UK", desc: "Wages, deductions and filings run on schedule." },
+    { name: "Accounts preparation", tag: "US & UK", desc: "Year-end accounts structured for sign-off." },
+    { name: "QuickBooks setup", tag: "US & UK", desc: "Chart of accounts and reporting built correctly." },
+    { name: "VAT returns", tag: "UK", desc: "Preparation and submission under Making Tax Digital." },
+    { name: "Tax compliance", tag: "UK", desc: "Filings kept on schedule, meeting HMRC deadlines." },
+    { name: "Tax planning", tag: "UK", desc: "Strategies to reduce liability, staying compliant." },
+    { name: "Startup & SME support", tag: "UK", desc: "Guidance on incentives, registration and compliance." },
+    { name: "Financial planning", tag: "UK", desc: "Practical planning that keeps your tax position efficient." }
+  ];
+
+  const grid = document.getElementById('serviceGrid');
+  grid.innerHTML = services.map(s => `
+    <div class="service-card">
+      <span class="tag">${s.tag}</span>
+      <h4>${s.name}</h4>
+      <p>${s.desc}</p>
+      <a class="btn full" href="mailto:info@znadigitalaccountants.com?subject=${encodeURIComponent('Service request: ' + s.name)}&body=${encodeURIComponent('Hi ZNA team,\n\nI would like to request: ' + s.name + '\n\nA bit about my business:\n')}">Request this service</a>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  const defaultDocs = [
+    "Last 3 months of bank statements",
+    "Prior year accounts (if switching from another firm)",
+    "Payroll records (if applicable)",
+    "List of current software/tools used"
+  ];
+
+  function loadDocs(){
+    const raw = localStorage.getItem('zna_docs');
+    if (raw) return JSON.parse(raw);
+    const initial = defaultDocs.map(d => ({ text: d, done: false }));
+    localStorage.setItem('zna_docs', JSON.stringify(initial));
+    return initial;
+  }
+
+  function saveDocs(docs){
+    localStorage.setItem('zna_docs', JSON.stringify(docs));
+  }
+
+  function renderDocs(){
+    const docs = loadDocs();
+    const list = document.getElementById('docList');
+    const doneCount = docs.filter(d => d.done).length;
+    document.getElementById('docProgress').textContent = doneCount + ' of ' + docs.length + ' complete';
+    list.innerHTML = docs.map((d, i) => `
+      <div class="doc-item ${d.done ? 'done' : ''}">
+        <input type="checkbox" id="doc${i}" ${d.done ? 'checked' : ''} onchange="toggleDoc(${i})">
+        <label for="doc${i}">${d.text}</label>
+      </div>
+    `).join('');
+  }
+
+  function toggleDoc(i){
+    const docs = loadDocs();
+    docs[i].done = !docs[i].done;
+    saveDocs(docs);
+    renderDocs();
+  }
+
+  function addDoc(){
+    const input = document.getElementById('newDocInput');
+    const val = input.value.trim();
+    if (!val) return;
+    const docs = loadDocs();
+    docs.push({ text: val, done: false });
+    saveDocs(docs);
+    input.value = '';
+    renderDocs();
+  }
+
+  renderDocs();
+
+  function loadExpenses(){
+    const raw = localStorage.getItem('zna_expenses');
+    return raw ? JSON.parse(raw) : [];
+  }
+
+  function saveExpenses(list){
+    localStorage.setItem('zna_expenses', JSON.stringify(list));
+  }
+
+  function renderExpenses(){
+    const list = loadExpenses();
+    const body = document.getElementById('expBody');
+    const empty = document.getElementById('expEmpty');
+    const table = document.getElementById('expTable');
+
+    if (list.length === 0){
+      table.style.display = 'none';
+      empty.style.display = 'block';
+    } else {
+      table.style.display = 'table';
+      empty.style.display = 'none';
+      body.innerHTML = list.map((e, i) => `
+        <tr>
+          <td>${escapeHtml(e.desc)}</td>
+          <td>${escapeHtml(e.category)}</td>
+          <td class="amt">$${parseFloat(e.amount).toFixed(2)}</td>
+          <td><button class="del" onclick="deleteExpense(${i})">Remove</button></td>
+        </tr>
+      `).join('');
+    }
+
+    const total = list.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+    document.getElementById('expTotal').textContent = '$' + total.toFixed(2);
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function addExpense(){
+    const descEl = document.getElementById('expDesc');
+    const amountEl = document.getElementById('expAmount');
+    const categoryEl = document.getElementById('expCategory');
+    const errorEl = document.getElementById('expError');
+
+    const desc = descEl.value.trim();
+    const amount = parseFloat(amountEl.value);
+
+    if (!desc || isNaN(amount) || amount <= 0){
+      errorEl.classList.add('show');
+      return;
+    }
+    errorEl.classList.remove('show');
+
+    const list = loadExpenses();
+    list.push({ desc, amount, category: categoryEl.value });
+    saveExpenses(list);
+
+    descEl.value = '';
+    amountEl.value = '';
+    renderExpenses();
+  }
+
+  function deleteExpense(i){
+    const list = loadExpenses();
+    list.splice(i, 1);
+    saveExpenses(list);
+    renderExpenses();
+  }
+
+  function emailExpenses(){
+    const list = loadExpenses();
+    if (list.length === 0){
+      alert('No expenses logged yet.');
+      return;
+    }
+    const total = list.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+    const bodyLines = list.map(e => `- ${e.desc} (${e.category}): $${parseFloat(e.amount).toFixed(2)}`).join('\n');
+    const body = `Hi ZNA team,\n\nHere is my logged expense list:\n\n${bodyLines}\n\nTotal: $${total.toFixed(2)}\n`;
+    window.location.href = `mailto:info@znadigitalaccountants.com?subject=${encodeURIComponent('Expense log submission')}&body=${encodeURIComponent(body)}`;
+  }
+
+  renderExpenses();
+</script>
+
+</body>
+</html>
