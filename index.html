@@ -1007,10 +1007,41 @@
   revealEls.forEach(el => revealObserver.observe(el));
 </script>
 
-<a href="https://arslanshahid.app.n8n.cloud/webhook/2553bd94-ae49-4f12-aad7-83d14ff91ef4/chat" target="_blank" class="chat-btn">Chat with ZNA</a>
-		]
-	});
+<!-- ZNA n8n Chat Widget -->
+<link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+<style>
+  :root {
+    --chat--color-primary: #0F1B3D;
+    --chat--color-secondary: #B8541E;
+    --chat--window--width: 380px;
+    --chat--window--height: 560px;
+    --chat--toggle--size: 56px;
+    --chat--toggle--bottom: 92px;
+    --chat--toggle--right: 24px;
+  }
+</style>
+<script type="module">
+  import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+  createChat({
+    webhookUrl: 'https://arslanshahid.app.n8n.cloud/webhook/2553bd94-ae49-4f12-aad7-83d14ff91ef4/chat',
+    mode: 'window',
+    showWelcomeScreen: false,
+    initialMessages: [
+      'Hi there! 👋',
+      "Welcome to ZNA Digital Accountants. How can we help you today?"
+    ],
+    i18n: {
+      en: {
+        title: 'ZNA Digital Accountants',
+        subtitle: "We're here to help with your accounting & bookkeeping.",
+        inputPlaceholder: 'Type your message…',
+        getStarted: 'New Conversation',
+        footer: '',
+      },
+    },
+  });
 </script>
+
 
 </body>
 </html>
