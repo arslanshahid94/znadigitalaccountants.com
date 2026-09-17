@@ -1007,17 +1007,21 @@
   revealEls.forEach(el => revealObserver.observe(el));
 </script>
 
-<link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+<link href="https://www.unpkg.com/@n8n/chat/dist/style.css" rel="stylesheet" />
 <script type="module">
-	import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/bundle.es.js';
+	import { createChat } from 'https://www.unpkg.com/@n8n/chat/dist/bundle.es.js';
 
 	createChat({
-		webhookUrl: 'https://arslanshahid.app.n8n.cloud/webhook/2553bd94-ae49-4f12-aad7-83d14ff91ef4/chat',
+		webhookUrl: 'https://arslanshahid.app.n8n.cloud/webhook/2553bd94-ae49-4f12-aad7-83d14ff91e94/chat',
+		target: '#n8n-chat',
 		mode: 'window',
 		showWelcomeScreen: true,
 		initialMessages: [
 			'Hi there! 👋',
-			'Start a chat. We\'re here to help you 24/7.'
+			'My name is ZNA. How can I assist you today?'
+		]
+	});
+</script>
 		]
 	});
 </script>
