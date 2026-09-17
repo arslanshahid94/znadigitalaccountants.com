@@ -1007,5 +1007,41 @@
   revealEls.forEach(el => revealObserver.observe(el));
 </script>
 
+<!-- n8n Chat Widget -->
+<link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+<script type="module">
+	import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+	window.addEventListener('DOMContentLoaded', () => {
+		try {
+			createChat({
+				webhookUrl: 'https://arslanshahid.app.n8n.cloud/webhook/2553bd94-ae49-4f12-aad7-83d14f191ef4/chat',
+				mode: 'window',
+				target: 'body',
+				chatButtonText: 'Chat with ZNA Accountants',
+				webhookConfig: {
+					method: 'POST',
+					headers: {}
+				},
+				initialMessages: [
+					'Hi there! 👋',
+					'My name is ZNA AI Assistant. How can I assist your business today?'
+				],
+				i18n: {
+					en: {
+						title: 'ZNA Digital Accountants',
+						subtitle: 'Ask us anything about accounting, tax, or bookkeeping.',
+						footer: '',
+						getStarted: 'New Conversation',
+						inputPlaceholder: 'Type your message...',
+					},
+				},
+			});
+		} catch (error) {
+			console.error('Error loading n8n chat:', error);
+		}
+	});
+</script>
+
 </body>
 </html>
